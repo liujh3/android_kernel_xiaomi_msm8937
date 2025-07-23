@@ -1,0 +1,64 @@
+name: ARM64 Kernel Build
+
+on:
+  workflow_dispatch: # 允许手动触发工作流
+  push:              # 当代码推送到仓库时触发
+
+jobs:
+  build:
+    runs-on: ubuntu-latest-arm64 # 指定使用 ARM64 Runner
+
+    steps:
+    - name: Checkout Kernel Source
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libncurses5-dev flex bison bc libssl-dev dwarves lz4 zstd cpio python3-pip
+        # 安装依赖
+
+    - name: Set Environment Variables for .config Version Text
+      run: |
+        echo "ARCH=arm64" >> $GITHUB_ENV
+        echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
+        echo "PATH=/usr/bin:$PATH" >> $GITHUB_ENV
+
+    - name: Clean Kernel Output Directory
+      run: |
+        rm -rf out
+        mkdir -p out
+
+    - name: Generate Initial .config from defconfig
+      run: |
+        ARCH=arm64 make mi439_defconfig O=out
+
+    - name: Update .config with New Options (Non-interactive)
+      run: |
+        # 使用 make oldconfig 来添加任何新的内核配置选项，并使用默认值。
+        ARCH=arm64 make oldconfig O=out
+
+    - name: Build Kernel
+      run: |
+        make O=out -j$(nproc)
+        # 编译内核
+
+    - name: Verify Build Output
+      run: |
+        ls -la out/arch/arm64/boot/Image
+        ls -la out/arch/arm64/boot/dtb
+        ls -la out/arch/arm64/boot/Image.gz-dtb
+        ls -la out/.config
+
+    - name: Upload Kernel Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: kernel-artifacts
+        path: |
+          out/arch/arm64/boot/Image
+          out/arch/arm64/boot/dtb
+          out/arch/arm64/boot/Image.gz-dtb
+          out/.config
+          # 上传文件
