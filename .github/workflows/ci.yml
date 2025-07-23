@@ -48,7 +48,7 @@ jobs:
     - name: Verify Build Output
       run: |
         ls -la out/arch/arm64/boot/Image
-        ls -la out/arch/arm64/boot/dtb
+        ls -la out/arch/arm64/boot/Image.gz
         ls -la out/arch/arm64/boot/Image.gz-dtb
         ls -la out/.config
 
@@ -58,7 +58,15 @@ jobs:
         name: kernel-artifacts
         path: |
           out/arch/arm64/boot/Image
-          out/arch/arm64/boot/dtb
+          out/arch/arm64/boot/Image.gz
           out/arch/arm64/boot/Image.gz-dtb
           out/.config
+          out/arch/arm64/boot/dts/xiaomi-sdm439/sdm439-olive.dtb
+          out/arch/arm64/boot/dts/xiaomi-sdm439/sdm439-pine.dtb
+          out/drivers/char/rdbg.ko
+          out/drivers/vhost/vhost.ko
+          out/drivers/vhost/vhost_net.ko
+          out/techpack/data/drivers/rmnet/perf/rmnet_perf.ko
+          out/techpack/data/drivers/rmnet/shs/rmnet_shs.ko
           # 上传文件
+
