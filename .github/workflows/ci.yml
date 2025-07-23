@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest-arm64 # 指定使用 ARM64 Runner
+    runs-on: ubuntu-24.04-arm # 指定使用 ARM64 Runner
 
     steps:
     - name: Checkout Kernel Source
