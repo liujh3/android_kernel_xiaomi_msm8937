@@ -17,56 +17,95 @@ jobs:
     - name: Install Dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y build-essential libncurses5-dev flex bison bc libssl-dev dwarves lz4 zstd cpio python3-pip
-        # 安装依赖
-
-    - name: Set Environment Variables for .config Version Text
-      run: |
-        echo "ARCH=arm64" >> $GITHUB_ENV
-        echo "CROSS_COMPILE=aarch64-linux-gnu-" >> $GITHUB_ENV
-        echo "PATH=/usr/bin:$PATH" >> $GITHUB_ENV
-
-    - name: Clean Kernel Output Directory
-      run: |
-        rm -rf out
-        mkdir -p out
+        sudo apt-get install -y build-essential libncurses5-dev flex bison bc libssl-dev dwarves lz4 zstd cpio python3-pip gzip tar xz-utils libclang-dev
+        # 安装编译依赖
 
     - name: Generate Initial .config from defconfig
       run: |
-        ARCH=arm64 make mi439_defconfig O=out
+        make mi439_defconfig
 
-    - name: Update .config with New Options (Non-interactive)
+    # 设置 Rust 工具链
+    - name: Setup Rust Toolchain
       run: |
-        # 使用 make oldconfig 来添加任何新的内核配置选项，并使用默认值。
-        ARCH=arm64 make oldconfig O=out
+        # 使用 rustup 安装最新的稳定版 Rust 工具链
+        # Rust 工具链是启用内核 Rust 支持的先决条件
+        curl https://sh.rustup.rs -sSf | sh -s -- -y
+        # 将 Cargo 的 bin 目录添加到 PATH
+        echo "PATH=$HOME/.cargo/bin:$PATH" >> $GITHUB_ENV
+
+        # 安装内核构建所需的 rust-src 组件
+        rustup component add rust-src
+        
+        # 安装 bindgen，用于生成 Rust/C 绑定
+        cargo install bindgen-cli
+
+    - name: Download and Extract ARM GNU Toolchain
+      run: |
+        TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-aarch64-aarch64-none-linux-gnu.tar.xz"
+        TOOLCHAIN_DIR="arm-gnu-toolchain"
+        
+        # 创建工具链目录
+        mkdir -p "${TOOLCHAIN_DIR}"
+        
+        # 下载并解压工具链
+        wget -qO- "${TOOLCHAIN_URL}" | tar -xJ --strip-components=1 -C "${TOOLCHAIN_DIR}"
+        
+        # 将工具链路径添加到环境变量中，供后续步骤使用
+        echo "TOOLCHAIN_PATH=$(pwd)/${TOOLCHAIN_DIR}/bin" >> $GITHUB_ENV
+        
+    - name: Set Environment Variables
+      run: |
+        # 使用下载的工具链的交叉编译前缀
+        echo "ARCH=arm64" >> $GITHUB_ENV
+        echo "CROSS_COMPILE=aarch64-none-linux-gnu-" >> $GITHUB_ENV
+        echo "PATH=$TOOLCHAIN_PATH:$PATH" >> $GITHUB_ENV
+
+    - name: olddefconfig
+      run: |
+        make olddefconfig
+        # 配置内核
 
     - name: Build Kernel
       run: |
-        make O=out -j$(nproc)
+        make -j$(nproc)
         # 编译内核
 
-    - name: Verify Build Output
+    - name: Prepare installation directory
       run: |
-        ls -la out/arch/arm64/boot/Image
-        ls -la out/arch/arm64/boot/Image.gz
-        ls -la out/arch/arm64/boot/Image.gz-dtb
-        ls -la out/.config
+        mkdir -p out/modules
+
+    - name: Install modules
+      run: |
+        make modules_install INSTALL_MOD_PATH=out/modules
+        # 安装模块
+
+    - name: Package modules
+      run: |
+        cp .config out/modules/
+        cd out
+        tar -Jcvf mod.tar.xz modules
+        cd ../
+
+    - name: Create final artifact directory
+      run: |
+        mkdir -p artifacts
+        
+    - name: Copy file
+      run: |
+        cp arch/arm64/boot/Image.gz artifacts/
+        cp arch/arm64/boot/Image.gz-dtb artifacts/
+        cp arch/arm64/boot/dts/xiaomi-sdm439/sdm439-olive.dtb artifacts/
+        cp arch/arm64/boot/dts/xiaomi-sdm439/sdm439-pine.dtb artifacts/
+        cp out/mod.tar.xz artifacts/
 
     - name: Upload Kernel Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: kernel-artifacts
         path: |
-          out/arch/arm64/boot/Image
-          out/arch/arm64/boot/Image.gz
-          out/arch/arm64/boot/Image.gz-dtb
-          out/.config
-          out/arch/arm64/boot/dts/xiaomi-sdm439/sdm439-olive.dtb
-          out/arch/arm64/boot/dts/xiaomi-sdm439/sdm439-pine.dtb
-          out/drivers/char/rdbg.ko
-          out/drivers/vhost/vhost.ko
-          out/drivers/vhost/vhost_net.ko
-          out/techpack/data/drivers/rmnet/perf/rmnet_perf.ko
-          out/techpack/data/drivers/rmnet/shs/rmnet_shs.ko
+          artifacts/Image.gz
+          artifacts/Image.gz-dtb
+          artifacts/sdm439-olive.dtb
+          artifacts/sdm439-pine.dtb
+          artifacts/mod.tar.xz
           # 上传文件
-
