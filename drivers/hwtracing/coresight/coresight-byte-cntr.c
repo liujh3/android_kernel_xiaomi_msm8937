@@ -564,7 +564,7 @@ void usb_bypass_notifier(void *priv, unsigned int event,
 		if (ret < 0)
 			return;
 
-		usb_qdss_alloc_req(ch, USB_BUF_NUM);
+		usb_qdss_alloc_req(ch, USB_BUF_NUM, USB_BUF_NUM);
 		queue_work(drvdata->usb_wq, &(drvdata->read_work));
 		break;
 
