@@ -38,7 +38,7 @@
 #include <linux/workqueue.h>
 #include <linux/hrtimer.h>
 #include <xiaomi-sdm439/mach.h>
-#include <aw87519_audio.h>
+#include "aw87519_audio.h"
 
 /*******************************************************************************
  * aw87519 marco
