@@ -1,0 +1,97 @@
+name: ARM64 Kernel Build
+
+on:
+  workflow_dispatch: # 允许手动触发工作流
+  push:              # 当代码推送到仓库时触发
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm # 指定使用 ARM64 Runner
+
+    steps:
+    - name: Checkout Kernel Source
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Assume .config is unchanged
+      run: |
+        git update-index --assume-unchanged .config
+        # 告诉 Git 暂时不要跟踪 .config 文件的任何变化
+
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential libncurses5-dev flex bison bc libssl-dev dwarves lz4 zstd cpio python3-pip gzip tar xz-utils libclang-dev
+        # 安装编译依赖
+
+    - name: Download and Extract ARM GNU Toolchain
+      run: |
+        TOOLCHAIN_URL="https://developer.arm.com/-/media/Files/downloads/gnu/14.3.rel1/binrel/arm-gnu-toolchain-14.3.rel1-aarch64-aarch64-none-linux-gnu.tar.xz"
+        TOOLCHAIN_DIR="arm-gnu-toolchain"
+        
+        # 创建工具链目录
+        mkdir -p "${TOOLCHAIN_DIR}"
+        
+        # 下载并解压工具链
+        wget -qO- "${TOOLCHAIN_URL}" | tar -xJ --strip-components=1 -C "${TOOLCHAIN_DIR}"
+        
+        # 将工具链路径添加到环境变量中，供后续步骤使用
+        echo "TOOLCHAIN_PATH=$(pwd)/${TOOLCHAIN_DIR}/bin" >> $GITHUB_ENV
+        
+    - name: Set Environment Variables
+      run: |
+        # 使用下载的工具链的交叉编译前缀
+        echo "ARCH=arm64" >> $GITHUB_ENV
+        echo "CROSS_COMPILE=aarch64-none-linux-gnu-" >> $GITHUB_ENV
+        echo "PATH=$TOOLCHAIN_PATH:$PATH" >> $GITHUB_ENV
+
+    - name: olddefconfig
+      run: |
+        make olddefconfig
+        # 配置内核
+
+    - name: Build Kernel
+      run: |
+        make -j$(nproc)
+        # 编译内核
+
+    - name: Prepare installation directory
+      run: |
+        mkdir -p out/modules
+
+    - name: Install modules
+      run: |
+        make modules_install INSTALL_MOD_PATH=out/modules
+        # 安装模块
+
+    - name: Package modules
+      run: |
+        cp .config out/modules/
+        cd out
+        tar -Jcvf mod.tar.xz modules
+        cd ../
+
+    - name: Create final artifact directory
+      run: |
+        mkdir -p artifacts
+        
+    - name: Copy file
+      run: |
+        cp arch/arm64/boot/Image.gz artifacts/
+        cp arch/arm64/boot/Image.gz-dtb artifacts/
+        cp arch/arm64/boot/dts/xiaomi-sdm439/sdm439-olive.dtb artifacts/
+        cp arch/arm64/boot/dts/xiaomi-sdm439/sdm439-pine.dtb artifacts/
+        cp out/mod.tar.xz artifacts/
+
+    - name: Upload Kernel Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: kernel-artifacts
+        path: |
+          artifacts/Image.gz
+          artifacts/Image.gz-dtb
+          artifacts/sdm439-olive.dtb
+          artifacts/sdm439-pine.dtb
+          artifacts/mod.tar.xz
+          # 上传文件
