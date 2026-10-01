@@ -148,3 +148,6 @@ Android.bp
 
 !techpack/xiaomi-sdm439/touchscreen/**/*.bin
 !techpack/xiaomi-sdm439/touchscreen/**/*.i
+
+arch/arm64/boot/dts/xiaomi-sdm439/sdm439-qrd-overlay-pine.dtbo
+arch/arm64/boot/dts/xiaomi-sdm439/sdm439-qrd-overlay-olive.dtbo
