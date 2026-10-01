@@ -1,0 +1,8 @@
+/acpidbg
+/acpidump
+/ec
+/include
+
+!*.c
+!*.h
+!Makefile
