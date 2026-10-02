@@ -195,8 +195,8 @@
 //Enable suspend on Android
 #define CFG_ENABLE_SUSPEND_NAME                "gEnableSuspend"
 #define CFG_ENABLE_SUSPEND_MIN                 ( 0 ) //No support for suspend
-#define CFG_ENABLE_SUSPEND_MAX                 ( 3 ) //Map to Deep Sleep
-#define CFG_ENABLE_SUSPEND_DEFAULT             ( 1 ) //Map to Standby
+#define CFG_ENABLE_SUSPEND_MAX                 ( 0 ) //Map to Deep Sleep
+#define CFG_ENABLE_SUSPEND_DEFAULT             ( 0 )
 
 //Driver start/stop command mappings
 #define CFG_ENABLE_ENABLE_DRIVER_STOP_NAME     "gEnableDriverStop"
@@ -210,8 +210,8 @@
 //IMPS = IdleModePowerSave
 #define CFG_ENABLE_IMPS_NAME                   "gEnableImps"
 #define CFG_ENABLE_IMPS_MIN                    ( 0 )
-#define CFG_ENABLE_IMPS_MAX                    ( 1 )
-#define CFG_ENABLE_IMPS_DEFAULT                ( 1 )
+#define CFG_ENABLE_IMPS_MAX                    ( 0 )
+#define CFG_ENABLE_IMPS_DEFAULT                ( 0 )
 
 //SSR = SubSytemRestart
 #define CFG_SSR_PANIC_ON_FAILURE_NAME          "gSsrPanicOnFailure"
@@ -247,8 +247,8 @@
 //BMPS = BeaconModePowerSave
 #define CFG_ENABLE_BMPS_NAME                   "gEnableBmps"
 #define CFG_ENABLE_BMPS_MIN                    ( 0 )
-#define CFG_ENABLE_BMPS_MAX                    ( 1 )
-#define CFG_ENABLE_BMPS_DEFAULT                ( 1 )
+#define CFG_ENABLE_BMPS_MAX                    ( 0 )
+#define CFG_ENABLE_BMPS_DEFAULT                ( 0 )
 
 #define CFG_BMPS_MINIMUM_LI_NAME               "gBmpsMinListenInterval"
 #define CFG_BMPS_MINIMUM_LI_MIN                ( 1 )
@@ -610,8 +610,8 @@ typedef enum
 //Additional Handoff related Parameters  
 #define CFG_ENABLE_IDLE_SCAN_NAME             "gEnableIdleScan"      
 #define CFG_ENABLE_IDLE_SCAN_MIN              ( 0 )
-#define CFG_ENABLE_IDLE_SCAN_MAX              ( 1 )
-#define CFG_ENABLE_IDLE_SCAN_DEFAULT          ( 1 ) 
+#define CFG_ENABLE_IDLE_SCAN_MAX              ( 0 )
+#define CFG_ENABLE_IDLE_SCAN_DEFAULT          ( 0 )
 
 #define CFG_ROAMING_TIME_NAME                 "gRoamingTime"
 #define CFG_ROAMING_TIME_MIN                  ( 0 )
@@ -792,9 +792,9 @@ typedef enum
 #define CFG_DATA_INACTIVITY_TIMEOUT_DEFAULT    ( 20 )
 
 #define CFG_NTH_BEACON_FILTER_NAME             "gNthBeaconFilter"
-#define CFG_NTH_BEACON_FILTER_MIN              ( WNI_CFG_NTH_BEACON_FILTER_STAMIN )
-#define CFG_NTH_BEACON_FILTER_MAX              ( WNI_CFG_NTH_BEACON_FILTER_STAMAX )
-#define CFG_NTH_BEACON_FILTER_DEFAULT          ( WNI_CFG_NTH_BEACON_FILTER_STADEF )
+#define CFG_NTH_BEACON_FILTER_MIN              ( 0 )
+#define CFG_NTH_BEACON_FILTER_MAX              ( 0 )
+#define CFG_NTH_BEACON_FILTER_DEFAULT          ( 0 )
 
 #define CFG_RF_SETTLING_TIME_CLK_NAME          "rfSettlingTimeUs"
 #define CFG_RF_SETTLING_TIME_CLK_MIN           ( 0 )
@@ -1508,7 +1508,7 @@ typedef enum
 #define CFG_SINGLE_TID_RC_DEFAULT                           (1) 
 #define CFG_MCAST_BCAST_FILTER_SETTING_NAME          "McastBcastFilter"
 #define CFG_MCAST_BCAST_FILTER_SETTING_MIN           (0)
-#define CFG_MCAST_BCAST_FILTER_SETTING_MAX           (3)
+#define CFG_MCAST_BCAST_FILTER_SETTING_MAX           (0)
 #define CFG_MCAST_BCAST_FILTER_SETTING_DEFAULT       (0)
 
 #define CFG_DYNAMIC_PSPOLL_VALUE_NAME          "gDynamicPSPollvalue"

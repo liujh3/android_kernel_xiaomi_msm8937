@@ -27,8 +27,12 @@ static struct ktd3137_chip *bkl_chip;
 
 #define KTD_DEBUG
 
- #ifdef KTD_DEBUG
-#define LOG_DBG(fmt, args...) printk(KERN_INFO "[ktd]"fmt"\n", ##args)
+#undef KTD_DEBUG
+
+#ifdef KTD_DEBUG
+    #define LOG_DBG(fmt, args...) printk(KERN_INFO "[ktd]" fmt "\n", ##args)
+#else
+    #define LOG_DBG(fmt, args...) do { } while (0)
 #endif
 
 static int ktd3137_brightness_table_reg4[256] = {0x01, 0x02, 0x04, 0x04, 0x07,

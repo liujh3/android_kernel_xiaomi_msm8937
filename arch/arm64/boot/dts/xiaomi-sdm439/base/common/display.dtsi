@@ -29,7 +29,7 @@
 		enable-gpios = <&pm8953_gpios 4 0>;
 		/*ktd,pwm-mode; */
 		ktd,using-lsb = <1>;
-		ktd,pwm-frequency = <100>;
+		ktd,pwm-frequency = <20000>;
 		ktd,bl-fscal-led = <0x98>;/*default 20.2mA*/
 		ktd,turn-on-ramp = <0>;
 		ktd,turn-off-ramp = <0>;

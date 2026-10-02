@@ -600,7 +600,8 @@ static const struct dev_pm_ops pm_ops = {
 ----------------------------------------------------------------------------*/
 VOS_STATUS hddRegisterPmOps(hdd_context_t *pHddCtx)
 {
-    wcnss_wlan_register_pm_ops(pHddCtx->parent_dev, &pm_ops);
+    /* 取消注册 suspend/resume 回调 */
+    // wcnss_wlan_register_pm_ops(pHddCtx->parent_dev, &pm_ops);
     return VOS_STATUS_SUCCESS;
 }
 
@@ -619,7 +620,8 @@ VOS_STATUS hddRegisterPmOps(hdd_context_t *pHddCtx)
 ----------------------------------------------------------------------------*/
 VOS_STATUS hddDeregisterPmOps(hdd_context_t *pHddCtx)
 {
-    wcnss_wlan_unregister_pm_ops(pHddCtx->parent_dev, &pm_ops);
+    /* 配合 hddRegisterPmOps，注释掉注销逻辑 */
+    // wcnss_wlan_unregister_pm_ops(pHddCtx->parent_dev, &pm_ops);
     return VOS_STATUS_SUCCESS;
 }
 
@@ -777,7 +779,8 @@ VOS_STATUS hddDevTmRegisterNotifyCallback(hdd_context_t *pHddCtx)
    VOS_TRACE(VOS_MODULE_ID_HDD,VOS_TRACE_LEVEL_INFO,
              "%s: Register TM Handler", __func__);
 
-   wcnss_register_thermal_mitigation(pHddCtx->parent_dev ,hddDevTmLevelChangedHandler);
+   /* 取消温控回调的注册 */
+   // wcnss_register_thermal_mitigation(pHddCtx->parent_dev ,hddDevTmLevelChangedHandler);
 
    /* Set Default TM Level as Lowest, do nothing */
    pHddCtx->tmInfo.currentTmLevel = WLAN_HDD_TM_LEVEL_0;
@@ -810,7 +813,8 @@ VOS_STATUS hddDevTmUnregisterNotifyCallback(hdd_context_t *pHddCtx)
 {
    VOS_STATUS vosStatus = VOS_STATUS_SUCCESS;
 
-   wcnss_unregister_thermal_mitigation(hddDevTmLevelChangedHandler);
+   /* 配合 hddDevTmRegisterNotifyCallback，注释掉注销逻辑 */
+   // wcnss_unregister_thermal_mitigation(hddDevTmLevelChangedHandler);
 
    if(VOS_TIMER_STATE_RUNNING ==
            vos_timer_getCurrentState(&pHddCtx->tmInfo.txSleepTimer))

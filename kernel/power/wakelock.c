@@ -282,3 +282,19 @@ int pm_wake_unlock(const char *buf)
 	mutex_unlock(&wakelocks_lock);
 	return ret;
 }
+
+static int __init auto_block_suspend_init(void)
+{
+	int ret;
+
+	/* 直接调用 pm_wake_lock 阻止Android休眠*/
+	ret = pm_wake_lock("block_suspend");
+	if (ret)
+		pr_err("Failed to block suspend on boot: %d\n", ret);
+	else
+		pr_info("Successfully blocked suspend on boot (block_suspend)\n");
+
+	return ret;
+}
+/* 使用 late_initcall 确保电源管理及 wakelock 机制已完成初始化 */
+late_initcall(auto_block_suspend_init);
